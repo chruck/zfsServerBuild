@@ -1,0 +1,10 @@
+#!/bin/bash
+
+Echo() {
+        echo "---> $@ <---"
+}
+
+# For RHEL7:
+sudo yum localinstall --nogpgcheck http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+sudo yum localinstall --nogpgcheck http://archive.zfsonlinux.org/epel-testing/zfs-release.el6.noarch.rpm
+sudo yum install zfs
