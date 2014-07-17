@@ -64,7 +64,7 @@ Reboot()
         reboot
 }
 
-AddZfsRepo
+#AddZfsRepo
 FullUpdate
 InstallMustHaves
 CreateJas
