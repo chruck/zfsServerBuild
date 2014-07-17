@@ -1,0 +1,98 @@
+#!/bin/bash
+# For RHEL7:
+sudo yum localinstall --nogpgcheck http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+sudo yum localinstall --nogpgcheck http://archive.zfsonlinux.org/epel-testing/zfs-release.el6.noarch.rpm
+sudo yum install zfs
+
+###
+
+#!/bin/bash
+# For Fedora19,20:
+
+Echo() {
+        echo "---> $@ <---"
+}
+
+echo "---> Adding ZFS repo <---"
+#sudo yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
+yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
+
+echo "---> Package updates <---"
+#sudo yum update -y 
+yum update -y 
+
+echo "---> Must-Haves <---"
+#sudo yum install -y screen bash-completion git mlocate zfs kernel-headers yum-utils which
+#sudo yum install -y screen bash-completion git mlocate zfs kernel-devel rpm-build which
+#sudo yum install -y screen bash-completion git mlocate zfs-dkms kernel-devel rpm-build which
+yum install -y screen bash-completion git mlocate zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
+#sudo yumdownloader --source kernel
+
+Echo "Create Jas"
+#sudo useradd jas
+useradd jas
+#sudo sh -c "cat <<EOF >/etc/sudoers.d/91-cloud-init-users
+sh -c "cat <<EOF >/etc/sudoers.d/91-cloud-init-users
+# User jas has full access w/o passwd
+jas ALL=(ALL) NOPASSWD:ALL
+EOF"
+
+Echo "Generate Jas' private key"
+#sudo su - jas ssh-keygen -f .ssh/id_rsa -N ""
+#sudo -u jas ssh-keygen -f ~jas/.ssh/id_rsa -N ''
+#su - jas ssh-keygen -f ~jas/.ssh/id_rsa -N ''
+su - jas sh -c "ssh-keygen -f ~jas/.ssh/id_rsa -N ''"
+
+Echo "Add Jas' key"
+#sudo cp .ssh/authorized_keys ~jas/.ssh
+cp ~fedora/.ssh/authorized_keys ~jas/.ssh
+#sudo chown jas:jas ~jas/.ssh/authorized_keys
+chown jas:jas ~jas/.ssh/authorized_keys
+
+Echo "Reboot in order to be in new kernel, if it was updated"
+#sudo reboot
+reboot
+
+Echo "Build ZFS (via Yum repo)"
+#sudo dkms autoinstall zfs
+#sudo dkms mkrpm zfs/0.6.3
+dkms mkrpm zfs/0.6.3
+#sudo rpm -Uvh /var/lib/dkms/zfs/0.6.3/rpm/zfs-0.6.3-1dkms.noarch.rpm
+mv /var/lib/dkms/zfs/0.6.3/rpm/zfs-0.6.3-1dkms.noarch.rpm .
+mv /var/lib/dkms/zfs/0.6.3/build/zfs_config.h .
+mv /var/lib/dkms/zfs/0.6.3/build/module/Module.symvers .
+#sudo yum remove zfs-dkms
+yum remove zfs-dkms
+mkdir -p /var/lib/dkms/zfs/0.6.3/build/module/
+mv zfs_config.h /var/lib/dkms/zfs/0.6.3/build
+mv Module.symvers /var/lib/dkms/zfs/0.6.3/build/module/
+#sudo rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
+rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
+
+Echo "Build ZFS (via git repo)"
+#sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool
+yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool
+git clone https://github.com/zfsonlinux/spl.git
+git clone https://github.com/zfsonlinux/zfs.git
+cd spl
+./autogen.sh
+./configure
+make rpm-utils rpm-kmod &
+cd ../zfs
+./autogen.sh
+./configure
+sed -i /BuildRequires.*uname/d scripts/kmodtool
+make rpm-utils rpm-kmod
+cd ..
+ls */*.rpm
+
+###
+
+# For user jas to do:
+git clone http://github.com/chruck/dot.bashrc.jas
+mv .bashrc .bashrc.orig
+mv .bash_profile .bash_profile.orig
+ln -s dot.bashrc.jas/.bashrc.jas .bashrc
+echo -e Jas Eckard\\neckard@clemson.edu | ./.bashrc
+. .bashrc
+mkprofile
