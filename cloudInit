@@ -1,14 +1,25 @@
-!#/bin/bash
+#!/bin/bash
 
 # This file calls the other scripts and should be added into (cut and
 # pasted) the creation of an OpenStack instance.
 
-yum install -y wget
-wget https://cuer.clemson.edu/dashboard/project/containers/JasZFSStuff/installZfsOnFedora20/download
-wget https://cuer.clemson.edu/dashboard/project/containers/JasZFSStuff/setupJasHome/download
-https://cuer.clemson.edu/dashboard/project/containers/JasZFSStuff/buildZfsFromGithub/download
+Echo()
+{
+        echo "---> $@ <---"
+}
+
+Echo "Begin Customization:  Install git"
+yum install -y git
+
+Echo "Download helper scripts"
+git clone http://github.com/chruck/zfsServerBuild
+cd zfsServerBuild
 chmod +rx installZfsOnFedora20 setupJasHome buildZfsFromGithub
+
+Echo "Call Install ZFS script"
 ./installZfsOnFedora20
+
+Echo "Setup Jas"
 chown jas:jas setupJasHome
 mv ~jas/.bashrc ~jas/.bashrc.old
 mv setupJasHome ~jas/.bashrc
