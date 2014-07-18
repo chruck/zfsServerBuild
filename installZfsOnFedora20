@@ -63,7 +63,7 @@ Reboot()
 {
         Echo "Reboot in order to be in new kernel, if it was updated"
         #reboot
-        shutdown
+        shutdown -r
 }
 
 #AddZfsRepo
