@@ -51,14 +51,24 @@ EOF
         chown jas:jas ~jas/.ssh/authorized_keys
 }
 
+SetupJas()
+{
+        chown jas:jas setupJasHome
+        mv ~jas/.bashrc ~jas/.bashrc.old
+        mv /zfsServerBuild/setupJasHome ~jas/.bashrc
+        mv /zfsServerBuild/buildZfsFromGithub ~jas
+}
+
 Reboot()
 {
         Echo "Reboot in order to be in new kernel, if it was updated"
-        reboot
+        #reboot
+        shutdown
 }
 
 #AddZfsRepo
 FullUpdate
 InstallMustHaves
 CreateJas
+SetupJas
 Reboot

@@ -18,9 +18,3 @@ chmod +rx installZfsOnFedora20 setupJasHome buildZfsFromGithub
 
 Echo "Call Install ZFS script"
 ./installZfsOnFedora20
-
-Echo "Setup Jas"
-chown jas:jas setupJasHome
-mv ~jas/.bashrc ~jas/.bashrc.old
-mv setupJasHome ~jas/.bashrc
-mv buildZfsFromGithub ~jas
