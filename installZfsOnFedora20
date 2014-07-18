@@ -4,6 +4,11 @@
 # This file is expected to be called by the cloudinit subsystem,
 # therefore as root.
 
+if [[ "0" != "$(id -u)" ]] ; then
+        echo "Run this program ${0} as root."
+        exit 1
+fi
+
 Echo()
 {
         echo "---> $@ <---"
@@ -12,55 +17,43 @@ Echo()
 AddZfsRepo()
 {
         Echo "Adding ZFS repo"
-        #sudo yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
         yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
 }
 
 FullUpdate()
 {
         Echo "Package updates"
-        #sudo yum update -y 
         yum update -y 
 }
 
 InstallMustHaves()
 {
         Echo "Must-Haves"
-        #sudo yum install -y screen bash-completion git mlocate zfs kernel-headers yum-utils which
-        #sudo yum install -y screen bash-completion git mlocate zfs kernel-devel rpm-build which
-        #sudo yum install -y screen bash-completion git mlocate zfs-dkms kernel-devel rpm-build which
         yum install -y screen bash-completion git mlocate zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
-        #sudo yumdownloader --source kernel
 }
 
 CreateJas()
 {
         Echo "Create Jas"
-        #sudo useradd jas
         useradd jas
         #sudo sh -c "cat <<EOF >/etc/sudoers.d/91-cloud-init-users
-        sh -c "cat <<EOF >/etc/sudoers.d/91-cloud-init-users
-        # User jas has full access w/o passwd
-        jas ALL=(ALL) NOPASSWD:ALL
-        EOF"
+        cat <<EOF >/etc/sudoers.d/91-cloud-init-users
+# User jas has full access w/o passwd
+jas ALL=(ALL) NOPASSWD:ALL
+EOF
+        #chmod +x /etc/sudoers.d/91-cloud-init-users
 
         Echo "Generate Jas' private key"
-        #sudo su - jas ssh-keygen -f .ssh/id_rsa -N ""
-        #sudo -u jas ssh-keygen -f ~jas/.ssh/id_rsa -N ''
-        #su - jas ssh-keygen -f ~jas/.ssh/id_rsa -N ''
         su - jas sh -c "ssh-keygen -f ~jas/.ssh/id_rsa -N ''"
 
         Echo "Add Jas' key"
-        #sudo cp .ssh/authorized_keys ~jas/.ssh
         cp ~fedora/.ssh/authorized_keys ~jas/.ssh
-        #sudo chown jas:jas ~jas/.ssh/authorized_keys
         chown jas:jas ~jas/.ssh/authorized_keys
 }
 
 Reboot()
 {
         Echo "Reboot in order to be in new kernel, if it was updated"
-        #sudo reboot
         reboot
 }
 
