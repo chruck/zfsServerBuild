@@ -23,38 +23,48 @@ buildFromYum()
         rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
 }
 
-buildFromGit()
+buildSpl()
 {
-        Echo "Build ZFS (via git repo)"
-        sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
-#
-#kernel-devel
-#zlib-devel
-#libuuid-devel
-#libblkid-devel
-#libselinux-devel
-#parted
-#lsscsi
-#wget
-autoconf
-automake
-libtool
-make
-
-        #yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool
-        git clone https://github.com/zfsonlinux/spl.git
-        #git clone https://github.com/zfsonlinux/zfs.git
-        git clone https://github.com/chruck/zfs.git
-        cd spl
+        Echo "Building SPL"
+        pushd spl
         ./autogen.sh
         ./configure
-        make rpm-utils rpm-kmod &
-        cd ../zfs
+        make rpm-utils rpm-kmod
+        rpm -Uvh spl-0.6.3-*.x86_64.rpm \
+                 kmod-spl-$(uname -r)*0.6.3*x86_64.rpm \
+                 kmod-spl-devel-$(uname -r)*0.6.3*x86_64.rpm 
+        popd
+}
+
+buildZfs()
+{
+        Echo "Building ZFS"
+        pushd zfs
         ./autogen.sh
         ./configure
         sed -i /BuildRequires.*uname/d scripts/kmodtool
         make rpm-utils rpm-kmod
-        cd ..
+        rpm -Uvh kmod-zfs-$(uname -r)*0.6.3*.x86_64.rpm \
+                 zfs-0.6.3*.x86_64.rpm \
+                 libzfs2-0.6.3*.x86_64.rpm \
+                 libnvpair1-0.6.3*x86_64.rpm
+                 libuutil1-0.6.3*x86_64.rpm
+                 libzfs2-0.6.3*x86_64.rpm
+                 libzpool2-0.6.3*x86_64.rpm
+
+        popd
+}
+
+buildFromGit()
+{
+        Echo "Build ZFS (via git repo)"
+        #sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+        yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+        git clone https://github.com/zfsonlinux/spl.git
+        #git clone https://github.com/zfsonlinux/zfs.git
+        git clone https://github.com/chruck/zfs.git
+        buildSpl
+        buildZfs
         ls */*.rpm
 }
 
