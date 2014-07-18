@@ -12,6 +12,7 @@ Echo "Begin Customization:  Install git"
 yum install -y git
 
 Echo "Download helper scripts"
+cd /usr/src
 git clone http://github.com/chruck/zfsServerBuild
 cd zfsServerBuild
 chmod +rx installZfsOnFedora20 setupJasHome buildZfsFromGithub
