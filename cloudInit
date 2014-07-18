@@ -8,7 +8,10 @@ Echo()
         echo "---> $@ <---"
 }
 
-Echo "Begin Customization:  Install git"
+Echo "Begin Customization:  Set tz=NYC"
+timedatectl set-timezone America/New_York
+
+Echo "Install git"
 yum install -y git
 
 Echo "Download helper scripts"
