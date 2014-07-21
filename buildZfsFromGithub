@@ -21,37 +21,42 @@ buildFromYum()
         mv zfs_config.h /var/lib/dkms/zfs/0.6.3/build
         mv Module.symvers /var/lib/dkms/zfs/0.6.3/build/module/
         sudo rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
-        #rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
 }
 
 buildSpl()
 {
         Echo "Building SPL"
+        git clone https://github.com/zfsonlinux/spl.git
         pushd spl
         ./autogen.sh
         ./configure
         make rpm-utils rpm-kmod
-        rpm -Uvh spl-0.6.3-*.x86_64.rpm \
-                 kmod-spl-$(uname -r)*0.6.3*x86_64.rpm \
-                 kmod-spl-devel-$(uname -r)*0.6.3*x86_64.rpm 
+        sudo rpm -Uvh \
+                      spl-0.6.3-*.x86_64.rpm \
+                      kmod-spl-$(uname -r)*0.6.3*x86_64.rpm \
+                      kmod-spl-devel-$(uname -r)*0.6.3*x86_64.rpm 
         popd
 }
 
 buildZfs()
 {
         Echo "Building ZFS"
+        git clone https://github.com/zfsonlinux/zfs.git
+        #git clone https://github.com/chruck/zfs.git
         pushd zfs
         ./autogen.sh
         ./configure
-        sed -i /BuildRequires.*uname/d scripts/kmodtool
+        # Not sure I need this:  --Mon Jul 21 14:45:15 EDT 2014
+        #sed -i /BuildRequires.*uname/d scripts/kmodtool
         make rpm-utils rpm-kmod
-        rpm -Uvh kmod-zfs-$(uname -r)*0.6.3*.x86_64.rpm \
-                 zfs-0.6.3*.x86_64.rpm \
-                 libzfs2-0.6.3*.x86_64.rpm \
-                 libnvpair1-0.6.3*x86_64.rpm
-                 libuutil1-0.6.3*x86_64.rpm
-                 libzfs2-0.6.3*x86_64.rpm
-                 libzpool2-0.6.3*x86_64.rpm
+        sudo rpm -Uvh \
+                      kmod-zfs-$(uname -r)*0.6.3*.x86_64.rpm \
+                      zfs-0.6.3*.x86_64.rpm \
+                      libzfs2-0.6.3*.x86_64.rpm \
+                      libnvpair1-0.6.3*x86_64.rpm \
+                      libuutil1-0.6.3*x86_64.rpm \
+                      libzfs2-0.6.3*x86_64.rpm \
+                      libzpool2-0.6.3*x86_64.rpm
 
         popd
 }
@@ -62,9 +67,6 @@ buildFromGit()
         Echo "Install build tools as root:"
         sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
         #yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
-        git clone https://github.com/zfsonlinux/spl.git
-        #git clone https://github.com/zfsonlinux/zfs.git
-        git clone https://github.com/chruck/zfs.git
         buildSpl
         buildZfs
         ls */*.rpm
