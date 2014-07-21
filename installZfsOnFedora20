@@ -76,7 +76,7 @@ SetupJas()
         chown jas:jas /usr/src/zfsServerBuild/setupJasHome
         mv ~jas/.bash_profile ~jas/.bash_profile.old
         cp /usr/src/zfsServerBuild/setupJasHome ~jas/.bash_profile
-        ${toBuildRpms} && cp /usr/src/zfsServerBuild/buildZfsFromGithub ~jas
+        ${toBuildRpms} && ln -s /usr/src/zfsServerBuild/buildZfsFromGithub ~jas
 }
 
 Reboot()
