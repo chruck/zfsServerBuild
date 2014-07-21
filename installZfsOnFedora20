@@ -72,10 +72,10 @@ EOF
 
 SetupJas()
 {
-        chown jas:jas setupJasHome
+        chown jas:jas /usr/src/zfsServerBuild/setupJasHome
         mv ~jas/.bashrc ~jas/.bashrc.old
-        mv /zfsServerBuild/setupJasHome ~jas/.bashrc
-        ${toBuildRpms} && mv /zfsServerBuild/buildZfsFromGithub ~jas
+        mv /usr/src/zfsServerBuild/setupJasHome ~jas/.bashrc
+        ${toBuildRpms} && mv /usr/src/zfsServerBuild/buildZfsFromGithub ~jas
 }
 
 Reboot()
