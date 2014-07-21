@@ -5,7 +5,7 @@
 # therefore as root.
 
 if [[ "0" != "$(id -u)" ]] ; then
-        echo "Run this program ${0} as root."
+        echo "Run this program (${0}) as root."
         exit 1
 fi
 
