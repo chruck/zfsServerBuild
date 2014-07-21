@@ -25,7 +25,7 @@ CheckIfBuildRpms()
 
 AddZfsRepo()
 {
-        toBuildRpms && return
+        ${toBuildRpms} && return
 
         Echo "Adding ZFS repo"
         yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
@@ -41,8 +41,8 @@ InstallMustHaves()
 {
         Echo "Must-Haves"
         yum install -y screen bash-completion git mlocate
-        #toBuildRpms && yum install -y zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
-        if toBuildRpms ; then
+        #${toBuildRpms} && yum install -y zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
+        if ${toBuildRpms} ; then
                 yum install -y zfs-dkms kernel-devel rpm-build zlib-devel libuuid-devel
         else
                 # NFS mount twelfth
@@ -75,7 +75,7 @@ SetupJas()
         chown jas:jas setupJasHome
         mv ~jas/.bashrc ~jas/.bashrc.old
         mv /zfsServerBuild/setupJasHome ~jas/.bashrc
-        toBuildRpms && mv /zfsServerBuild/buildZfsFromGithub ~jas
+        ${toBuildRpms} && mv /zfsServerBuild/buildZfsFromGithub ~jas
 }
 
 Reboot()
