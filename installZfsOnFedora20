@@ -44,11 +44,11 @@ InstallMustHaves()
         yum install -y screen bash-completion git mlocate
         #${toBuildRpms} && yum install -y zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
         if ${toBuildRpms} ; then
+                Echo "Build Must-Haves"
                 yum install -y zfs-dkms kernel-devel rpm-build zlib-devel libuuid-devel
         else
-                # NFS mount twelfth
-                # install ZFS RPMs that I built
-                :
+                Echo "NFS mount twelfth"
+                Echo "Install ZFS RPMs that Jas built"
         fi
 }
 
