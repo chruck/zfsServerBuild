@@ -1,14 +1,8 @@
 #!/bin/bash
-# For Fedora19,20:
-
-Echo() {
-        echo "---> $@ <---"
-}
-
 # For user jas to do:
-git clone http://github.com/chruck/dot.bashrc.jas
 mv .bashrc .bashrc.orig
 mv .bash_profile .bash_profile.orig
+git clone http://github.com/chruck/dot.bashrc.jas
 ln -s dot.bashrc.jas/.bashrc.jas .bashrc
 echo -e Jas Eckard\\neckard@clemson.edu | ./.bashrc
 . .bashrc
