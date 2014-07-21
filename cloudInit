@@ -21,4 +21,4 @@ cd zfsServerBuild
 chmod +rx installZfsOnFedora20 setupJasHome buildZfsFromGithub
 
 Echo "Call Install ZFS script"
-/usr/src/installZfsOnFedora20 # build
+./installZfsOnFedora20 # build
