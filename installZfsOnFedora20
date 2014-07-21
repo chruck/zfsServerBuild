@@ -9,6 +9,7 @@ if [[ "0" != "$(id -u)" ]] ; then
         exit 1
 fi
 
+declare one="${1}"
 declare toBuildRpms=false
 
 Echo()
@@ -18,7 +19,7 @@ Echo()
 
 CheckIfBuildRpms()
 {
-        if [[ "build" == "${1}" ]]; then
+        if [[ "build" == "${one}" ]]; then
                 toBuildRpms=true
         fi
 }
