@@ -14,13 +14,14 @@ buildFromYum()
         mv /var/lib/dkms/zfs/0.6.3/rpm/zfs-0.6.3-1dkms.noarch.rpm .
         mv /var/lib/dkms/zfs/0.6.3/build/zfs_config.h .
         mv /var/lib/dkms/zfs/0.6.3/build/module/Module.symvers .
-        #sudo yum remove zfs-dkms
-        yum remove zfs-dkms
+        Echo "Need to run yum as root"
+        sudo yum remove zfs-dkms
+        #yum remove zfs-dkms
         mkdir -p /var/lib/dkms/zfs/0.6.3/build/module/
         mv zfs_config.h /var/lib/dkms/zfs/0.6.3/build
         mv Module.symvers /var/lib/dkms/zfs/0.6.3/build/module/
-        #sudo rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
-        rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
+        sudo rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
+        #rpm -Uvh zfs-0.6.3-1dkms.noarch.rpm
 }
 
 buildSpl()
@@ -58,8 +59,9 @@ buildZfs()
 buildFromGit()
 {
         Echo "Build ZFS (via git repo)"
-        #sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
-        yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+        Echo "Install build tools as root:"
+        sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+        #yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
         git clone https://github.com/zfsonlinux/spl.git
         #git clone https://github.com/zfsonlinux/zfs.git
         git clone https://github.com/chruck/zfs.git
