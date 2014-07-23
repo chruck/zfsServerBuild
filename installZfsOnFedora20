@@ -28,8 +28,21 @@ AddZfsRepo()
 {
         ${toBuildRpms} && return
 
-        Echo "Adding ZFS repo"
-        yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
+        # The original method was to get the rpms from zfsonlinux.org,
+        # but that requires building kernel modules.  Now that I have
+        # those built kernel modules as RPMs, attach the NFS share and
+        # get them from there.
+        local viaZFSOnLinux=false
+
+        if viaZFSOnLinux ; then
+                Echo "Adding ZFS repo (zfsonlinux.org)"
+                yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
+        else
+                Echo "Adding ZFS repo (NFS mount 'fifteenth')"
+                echo 130.127.193.179 fifteenth >> /etc/hosts
+                yum install nfs-utils
+                mount fifteenth:/JasNFSPool /mnt
+        fi
 }
 
 FullUpdate()
@@ -47,8 +60,18 @@ InstallMustHaves()
                 Echo "Build Must-Haves"
                 yum install -y zfs-dkms kernel-devel rpm-build zlib-devel libuuid-devel
         else
-                Echo "NFS mount twelfth"
                 Echo "Install ZFS RPMs that Jas built"
+                pushd /mnt
+                sudo rpm -Uvh \
+                                kmod-zfs-$(uname -r)-0.6.3-*.x86_64.rpm \
+                                kmod-spl-$(uname -r)-0.6.3-*.x86_64.rpm \
+                                zfs-0.6.3-*.x86_64.rpm \
+                                spl-0.6.3-*.x86_64.rpm \
+                                libnvpair1-0.6.3*.x86_64.rpm \
+                                libuutil1-0.6.3-*.x86_64.rpm \
+                                libzfs2-0.6.3-*.x86_64.rpm \
+                                libzpool2-0.6.3-*.x86_64.rpm
+
         fi
 }
 
