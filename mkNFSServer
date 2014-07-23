@@ -1,0 +1,23 @@
+sudo sh -c 'echo 130.127.193.179 fifteenth >> /etc/hosts'
+sudo rpm -Uvh \                                                                               kmod-zfs-$(uname -r)-0.6.3-*.x86_64.rpm \
+              kmod-spl-$(uname -r)-0.6.3-*.x86_64.rpm \
+              zfs-0.6.3-*.x86_64.rpm \
+              spl-0.6.3-*.x86_64.rpm \
+              libnvpair1-0.6.3*.x86_64.rpm \
+              libuutil1-0.6.3-*.x86_64.rpm \
+              libzfs2-0.6.3-*.x86_64.rpm \
+              libzpool2-0.6.3-*.x86_64.rpm
+sudo zpool create JasNFSPool mirror vdb vdc spare vdd -f
+sudo yum install nfs-utils
+sudo echo /JasNFSPool *(rw) >exports
+sudo mv exports /etc/
+#sudo vi /etc/idmapd.conf 
+sudo systemctl start rpcbind.service 
+sudo systemctl start nfs-server.service 
+sudo systemctl start nfs-lock.service 
+sudo systemctl start nfs-idmap.service 
+sudo systemctl enable rpcbind.service 
+sudo systemctl enable nfs-server.service 
+sudo systemctl enable nfs-lock.service 
+sudo systemctl enable nfs-idmap.service 
+
