@@ -11,14 +11,21 @@ Echo()
 Echo "Begin Customization:  Set tz=NYC"
 timedatectl set-timezone America/New_York
 
-Echo "Install git"
-yum install -y git
+#Echo "Install git"
+Echo "Install nfs"
+#yum install -y git
+yum install -y nfs-utils
 
-Echo "Download helper scripts"
-cd /usr/src
-git clone http://github.com/chruck/zfsServerBuild
-cd zfsServerBuild
-chmod +rx installZfsOnFedora20 setupJasHome buildZfsFromGithub
+#Echo "Download helper scripts"
+#cd /usr/src
+#git clone http://github.com/chruck/zfsServerBuild
+#cd zfsServerBuild
+#chmod +rx installZfsOnFedora20 setupJasHome buildZfsFromGithub
+
+Echo "Adding ZFS repo (NFS mount 'fifteenth')"
+echo "130.127.193.179 fifteenth" >>/etc/hosts
+mount fifteenth:/JasNFSPool /mnt
+cd /mnt/bin
 
 Echo "Call Install ZFS script"
 ./installZfsOnFedora20 # build
