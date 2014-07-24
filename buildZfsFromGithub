@@ -65,8 +65,8 @@ buildFromGit()
 {
         Echo "Build ZFS (via git repo)"
         Echo "Install build tools as root:"
-        sudo yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
-        #yum -y install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+        sudo yum -y git install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+        #yum -y git install kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
         buildSpl
         buildZfs
         ls */*.rpm
