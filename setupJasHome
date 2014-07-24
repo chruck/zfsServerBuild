@@ -1,5 +1,6 @@
 #!/bin/bash
 # For user jas to do:
+sudo yum install -y git
 mv .bashrc .bashrc.orig
 mv .bash_profile .bash_profile.orig
 git clone http://github.com/chruck/dot.bashrc.jas
