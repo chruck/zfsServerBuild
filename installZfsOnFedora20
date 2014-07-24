@@ -38,9 +38,10 @@ AddZfsRepo()
                 Echo "Adding ZFS repo (zfsonlinux.org)"
                 yum localinstall -y --nogpgcheck http://archive.zfsonlinux.org/fedora/zfs-release$(rpm -E %dist).noarch.rpm
         else
-                Echo "Adding ZFS repo (NFS mount 'fifteenth')"
-                echo 130.127.193.179 fifteenth >> /etc/hosts
-                yum install nfs-utils
+                # This section already done in cloudInit:
+                Echo "(Re-)Adding ZFS repo (NFS mount 'fifteenth')"
+                echo "130.127.193.179 fifteenth" >>/etc/hosts
+                yum install -y nfs-utils
                 mount fifteenth:/JasNFSPool /mnt
         fi
 }
@@ -54,7 +55,8 @@ FullUpdate()
 InstallMustHaves()
 {
         Echo "Must-Haves"
-        yum install -y screen bash-completion git mlocate
+        #yum install -y screen bash-completion git mlocate
+        yum install -y screen bash-completion mlocate
         #${toBuildRpms} && yum install -y zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
         if ${toBuildRpms} ; then
                 Echo "Build Must-Haves"
