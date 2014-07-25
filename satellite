@@ -1,0 +1,147 @@
+#!/bin/bash
+
+FORCE=1
+ACTIVATION_KEY=2-399bb221a43fcc35e1fa8a9b0fc8984b
+DATE=`date +%Y%m%d`
+SERVER_URL=https://ccitrhnsat01.clemson.edu/XMLRPC
+
+CERT_FILE=/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+
+if [ "$1" = "-f" ]; then
+  FORCE=1
+fi
+if [ "$1" = "--force" ]; then
+  FORCE=1
+fi
+
+if [ ! -f /etc/redhat-release ]; then
+  echo "-ERR Not a redhat server"
+  exit 1
+fi
+
+# install yum-rhn-plugin and rhn-setup if necessary
+rpm -q rhn-setup yum-rhn-plugin || yum install yum-rhn-plugin rhn-setup -y
+
+# write the certificate file
+CERT_FILE_NEW=$CERT_FILE"".new
+CERT_FILE_BAK=$CERT_FILE""-""$DATE
+cat > $CERT_FILE_NEW <<EOF
+-----BEGIN CERTIFICATE-----
+MIIEtTCCA52gAwIBAgIJAL4wTi/Ygem7MA0GCSqGSIb3DQEBBQUAMHkxCzAJBgNV
+BAYTAlVTMQowCAYDVQQIEwFTMRAwDgYDVQQHEwdDbGVtc29uMRswGQYDVQQKExJD
+bGVtc29uIFVuaXZlcnNpdHkxDDAKBgNVBAsTA0NTTzEhMB8GA1UEAxMYY2NpdHJo
+bnNhdDAxLmNsZW1zb24uZWR1MB4XDTEyMDkyNzIwMjU1N1oXDTM2MDkyMTIwMjU1
+N1oweTELMAkGA1UEBhMCVVMxCjAIBgNVBAgTAVMxEDAOBgNVBAcTB0NsZW1zb24x
+GzAZBgNVBAoTEkNsZW1zb24gVW5pdmVyc2l0eTEMMAoGA1UECxMDQ1NPMSEwHwYD
+VQQDExhjY2l0cmhuc2F0MDEuY2xlbXNvbi5lZHUwggEiMA0GCSqGSIb3DQEBAQUA
+A4IBDwAwggEKAoIBAQDaoa6EWBi5pBBohDqdlOMlNIX+HeLHlN8F9l3T87aQc12d
+58vve01PP1BVV9DbD8XoGSEXoDFTNDWcZsTTvEfsOhrrZSVAeuAJVbmOVS+TBxfe
+cCIXtpieFOMKeYRBp4f4cWMF0Ky2ZpJ/iWtY+P2+YujeTte92NqgiB+3RCbE2jTJ
+ZEXLjFLR2VLJqO868oY8isBdLm0VCXcLvcMuk3cPf72FsP83P6+ZvI/LVt5Tw9Tm
+hYpG+8ODyl8hNoBGVQP9AzJucBbzC6qGPX8VBANtY6EkvANBY1nb4Ey6elCGSL7B
+cbi/EH1fyOPOWX4OnZtyxtPHGitl7Aqglj6mNghXAgMBAAGjggE+MIIBOjAMBgNV
+HRMEBTADAQH/MAsGA1UdDwQEAwICpDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYB
+BQUHAwIwMQYJYIZIAYb4QgENBCQWIlJITiBTU0wgVG9vbCBHZW5lcmF0ZWQgQ2Vy
+dGlmaWNhdGUwHQYDVR0OBBYEFCNWe0hTkLpAluDeHHwX266kR7j8MIGrBgNVHSME
+gaMwgaCAFCNWe0hTkLpAluDeHHwX266kR7j8oX2kezB5MQswCQYDVQQGEwJVUzEK
+MAgGA1UECBMBUzEQMA4GA1UEBxMHQ2xlbXNvbjEbMBkGA1UEChMSQ2xlbXNvbiBV
+bml2ZXJzaXR5MQwwCgYDVQQLEwNDU08xITAfBgNVBAMTGGNjaXRyaG5zYXQwMS5j
+bGVtc29uLmVkdYIJAL4wTi/Ygem7MA0GCSqGSIb3DQEBBQUAA4IBAQCQw0afuwhm
+C0Prg4v9VJEwG3IjucG7AwQLQHxKjm1C54KQS7B/5XdtkgTVDGWDQrNA0uN/fmCv
+YuMXaBSaLPLDQGlOK5BzuRJGqJ918x2jQJso91j8hrawF4s6u7zPbq8Z+RFjVFX1
+idPJ5HMrX2f3HFHYkL33ux0i2F98XmlN6dK+eqNgO5qLQYtbsY/0h4OYReqgjqdb
+ug8HYACwUBrg35XZqPc0cNuRaHYSw5isEU+d9wJ2J7lZ6mC6NYsCLdY6pGnqHmlO
+9H2ky4Fy0UiOgd6gpaTZ+9Fh0ebi1XwXRRK5SMnhBx5RTyc73FYmCi2F8Nnf3m+y
+OdvItvmaMBx2
+-----END CERTIFICATE-----
+EOF
+
+if [ ! $CERT_FILE ]; then
+  echo "No previous rhn org certificate found"
+  cp -f $CERT_FILE_NEW $CERT_FILE
+fi
+
+if diff $CERT_FILE $CERT_FILE_NEW; then
+  echo Organization certificate already installed
+  rm -f $CERT_FILE_NEW
+else
+  echo Installing new organization certificate
+  if [ ! -f $CERT_FILE_BAK ]; then
+    cp -f $CERT_FILE $CERT_FILE_BAK
+  fi
+  mv -f $CERT_FILE_NEW $CERT_FILE
+fi
+
+if [ "$FORCE" = "1" ]; then
+  forcearg="--force"
+else
+  forcearg=""
+fi
+
+/usr/sbin/rhnreg_ks $forcearg --activationkey $ACTIVATION_KEY --sslCACert=$CERT_FILE --serverUrl=$SERVER_URL
+
+# ensure that plugin is enabled
+cat /etc/yum.conf | sed -e 's/plugins=0/plugins=1/' > /etc/yum.conf.new
+if ! diff /etc/yum.conf /etc/yum.conf.new; then
+  if [ ! -f /etc/yum.conf-$DATE ]; then
+     cp -f /etc/yum.conf /etc/yum.conf-$DATE
+  fi
+  mv -f /etc/yum.conf.new /etc/yum.conf
+fi
+
+# make a backup of the yum.repos.d
+if [ ! -d /etc/yum.repos.d-$DATE ]; then
+  mkdir /etc/yum.repos.d-$DATE
+  rsync -av /etc/yum.repos.d/. /etc/yum.repos.d-$DATE/.
+fi
+
+# and mark all existing repos as not enabled
+cd /etc/yum.repos.d
+mkdir /tmp/satws
+for f in *.repo; do
+  cat /etc/yum.repos.d/$f | sed -e 's/enabled=1/enabled=0/g' > /tmp/satws/$f
+  if ! diff /etc/yum.repos.d/$f /tmp/satws/$f; then
+    echo DISABLING REPO: $f
+    mv -f /tmp/satws/$f /etc/yum.repos.d
+  fi
+done
+
+# disable gpgchecks for cso repo
+cat > /etc/yum/pluginconf.d/rhnplugin.conf <<EOF
+[main]
+enabled = 1
+gpgcheck = 1
+
+[cso_rhel5_i386]
+gpgcheck=0
+[cso_rhel5_x86_64]
+gpgcheck=0
+[cso_rhel6_i386]
+gpgcheck=0
+[cso_rhel6_x864_64]
+gpgcheck=0
+[ccit-incoming-cso_rhel5_i386]
+gpgcheck=0
+[ccit-incoming-cso_rhel6_i386]
+gpgcheck=0
+[ccit-early-cso_rhel5_i386]
+gpgcheck=0
+[ccit-early-cso_rhel6_i386]
+gpgcheck=0
+[ccit-late-cso_rhel5_i386]
+gpgcheck=0
+[ccit-late-cso_rhel6_i386]
+gpgcheck=0
+[ccit-incoming-cso_rhel5_x86_64]
+gpgcheck=0
+[ccit-incoming-cso_rhel6_x86_64]
+gpgcheck=0
+[ccit-early-cso_rhel5_x86_64]
+gpgcheck=0
+[ccit-early-cso_rhel6_x86_64]
+gpgcheck=0
+[ccit-late-cso_rhel5_x86_64]
+gpgcheck=0
+[ccit-late-cso_rhel6_x86_64]
+gpgcheck=0
+EOF
