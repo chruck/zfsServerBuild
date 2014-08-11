@@ -60,7 +60,8 @@ InstallMustHaves()
         #${toBuildRpms} && yum install -y zfs-dkms kernel-devel rpm-build which zlib-devel libuuid-devel
         if ${toBuildRpms} ; then
                 Echo "Build Must-Haves"
-                yum install -y zfs-dkms kernel-devel rpm-build zlib-devel libuuid-devel
+                #yum install -y zfs-dkms kernel-devel rpm-build zlib-devel libuuid-devel
+                yum install -y kernel-devel rpm-build zlib-devel libuuid-devel
         else
                 Echo "Install ZFS RPMs that Jas built"
                 pushd /mnt
@@ -98,10 +99,13 @@ EOF
 
 SetupJas()
 {
-        chown jas:jas /usr/src/zfsServerBuild/setupJasHome
+        #chown jas:jas /usr/src/zfsServerBuild/setupJasHome
+        chown jas:jas /mnt/zfsServerBuild/setupJasHome
         mv ~jas/.bash_profile ~jas/.bash_profile.old
-        cp /usr/src/zfsServerBuild/setupJasHome ~jas/.bash_profile
-        ${toBuildRpms} && ln -s /usr/src/zfsServerBuild/buildZfsFromGithub ~jas
+        #cp /usr/src/zfsServerBuild/setupJasHome ~jas/.bash_profile
+        cp /mnt/zfsServerBuild/setupJasHome ~jas/.bash_profile
+        #${toBuildRpms} && ln -s /usr/src/zfsServerBuild/buildZfsFromGithub ~jas
+        ${toBuildRpms} && ln -s /mnt/zfsServerBuild/buildZfsFromGithub ~jas
 }
 
 Reboot()
