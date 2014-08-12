@@ -11,6 +11,9 @@ Echo()
 Echo "Begin Customization:  Set tz=NYC"
 timedatectl set-timezone America/New_York
 
+# On Oracle OEL non-cloud build need to do this:
+#hostname blah
+
 #Echo "Install git"
 Echo "Install nfs"
 #yum install -y git
