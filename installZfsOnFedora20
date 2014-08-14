@@ -93,19 +93,22 @@ EOF
         su - jas sh -c "ssh-keygen -f ~jas/.ssh/id_rsa -N ''"
 
         Echo "Add Jas' key"
+        # Oracle OEL note:  since not using a cloud image, there is no
+        # `fedora' or `cloud-init' users:
         cp ~fedora/.ssh/authorized_keys ~jas/.ssh
         chown jas:jas ~jas/.ssh/authorized_keys
 }
 
 SetupJas()
 {
-        #chown jas:jas /usr/src/zfsServerBuild/setupJasHome
-        chown jas:jas /mnt/zfsServerBuild/setupJasHome
+        Echo "Setup Jas"
         mv ~jas/.bash_profile ~jas/.bash_profile.old
         #cp /usr/src/zfsServerBuild/setupJasHome ~jas/.bash_profile
-        cp /mnt/zfsServerBuild/setupJasHome ~jas/.bash_profile
+        cp /mnt/bin/setupJasHome ~jas/.bash_profile
+        #chown jas:jas /usr/src/zfsServerBuild/setupJasHome
+        chown jas:jas ~jas/.bash_profile
         #${toBuildRpms} && ln -s /usr/src/zfsServerBuild/buildZfsFromGithub ~jas
-        ${toBuildRpms} && ln -s /mnt/zfsServerBuild/buildZfsFromGithub ~jas
+        ${toBuildRpms} && ln -s /mnt/bin/buildZfsFromGithub ~jas
 }
 
 Reboot()
