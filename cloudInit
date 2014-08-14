@@ -12,7 +12,10 @@ Echo "Begin Customization:  Set tz=NYC"
 timedatectl set-timezone America/New_York
 
 # On Oracle OEL non-cloud build need to do this:
-#hostname blah
+#NEWHOSTNAME=blah
+#hostnamectl set-hostname ${NEWHOSTNAME}.clemson.edu
+##hostname ${NEWHOSTNAME}.clemson.edu
+##echo ${NEWHOSTNAME}.clemson.edu >/etc/hosts
 
 #Echo "Install git"
 Echo "Install nfs"
