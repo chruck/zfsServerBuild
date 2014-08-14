@@ -16,6 +16,8 @@ timedatectl set-timezone America/New_York
 #hostnamectl set-hostname ${NEWHOSTNAME}.clemson.edu
 ##hostname ${NEWHOSTNAME}.clemson.edu
 ##echo ${NEWHOSTNAME}.clemson.edu >/etc/hosts
+# Also:
+#sed -i 's/ONBOOT=no/ONBOOT=yes/' ifcfg-eth0 
 
 #Echo "Install git"
 Echo "Install nfs"
