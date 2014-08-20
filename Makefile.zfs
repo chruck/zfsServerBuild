@@ -1,0 +1,4 @@
+# Makefile to build ZFS from Github source
+# --Jas Wed Aug 20 16:16:21 EDT 2014
+
+all: zfs
