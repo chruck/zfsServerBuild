@@ -85,12 +85,28 @@ SPL_MAKEFILE := ${SPL_DIR}/Makefile
 ${SPL_MAKEFILE}: ${SPL_CONFIGURE}
 	cd ${SPL_DIR} && ./configure
 
-SPL_VER = $(shell sed 's/Version: *//p' -n ${SPL_META})
+#SPL_VER = $(shell sed 's/Version: *//p' -n ${SPL_META})
+$(eval $(shell grep SPL_META_VERSION ${SPL_MAKEFILE}))
+$(eval $(shell grep SPL_META_RELEASE ${SPL_MAKEFILE}))
 
-SPL_RPMs := ${SPL_DIR}/spl-${SPL_VER}-*.x86_64.rpm
-SPL_RPMs += ${SPL_DIR}/kmod-spl-${KERN_VER}*${SPL_VER}*x86_64.rpm
-SPL_RPMs += ${SPL_DIR}/kmod-spl-devel-${KERN_VER}*${SPL_VER}*x86_64.rpm
+# from rpm-utils:
+# spl-0.6.3-9_gf9bde4f.el7.src.rpm
+# spl-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# spl-debuginfo-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# from rpm-kmod:
+# kmod-spl-3.8.13-35.3.5.el7uek.x86_64-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# kmod-spl-devel-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# kmod-spl-devel-3.8.13-35.3.5.el7uek.x86_64-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# spl-0.6.3-9_gf9bde4f.el7.src.rpm
+# spl-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# spl-debuginfo-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+# spl-kmod-0.6.3-9_gf9bde4f.el7.src.rpm
+# spl-kmod-debuginfo-0.6.3-9_gf9bde4f.el7.x86_64.rpm
+SPL_RPMs := ${SPL_DIR}/spl-${SPL_META_VERSION}-${SPL_META_RELEASE}.x86_64.rpm
+SPL_RPMs += ${SPL_DIR}/kmod-spl-${KERN_VER}*${SPL_META_VERSION}-${SPL_META_RELEASE}.x86_64.rpm
+SPL_RPMs += ${SPL_DIR}/kmod-spl-devel-${KERN_VER}*${SPL_META_VERSION}-${SPL_META_RELEASE}.x86_64.rpm
 ${SPL_RPMs}: ${SPL_MAKEFILE}
+	sed -i 's/kernel-devel/kernel${UNBREAKABLE}-devel/' ${SPL_DIR}/scripts/kmodtool
 	#cd ${SPL_DIR} && make rpm-utils rpm-kmod
 	${MAKE} -C ${SPL_DIR} rpm-utils rpm-kmod
 
