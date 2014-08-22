@@ -6,7 +6,7 @@ ZFS_VER := 0.6.3
 SPL_VER := ${ZFS_VER}
 
 .PHONY: all
-all: zfs
+all: zfsPackages
 
 REQD_PKG_FILES := /usr/bin/git                 # git
 REQD_PKG_FILES += /usr/src/kernels/*/Makefile  # kernel-devel
@@ -82,8 +82,8 @@ ${ZFS_RPMs}: ${ZFS_MAKEFILE}
 
 RPMs := ${SPL_RPMs} ${ZFS_RPMs}
 
-.PHONY: zfs
-zfs: osUpdate ${REQD_PKG_FILES} ${RPMs}
+.PHONY: zfsPackages
+zfsPackages: osUpdate ${REQD_PKG_FILES} ${RPMs}
 
 .PHONY: clean
 clean:
