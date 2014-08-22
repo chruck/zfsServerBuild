@@ -8,11 +8,11 @@ SPL_VER := ${ZFS_VER}
 .PHONY: all
 all: zfsPackages
 
-REQD_PKG_FILES := /usr/bin/git                 # git
-REQD_PKG_FILES += /usr/src/kernels/*/Makefile  # kernel-devel
-REQD_PKG_FILES += /usr/bin/rpmbuild            # rpm-build
-REQD_PKG_FILES += /usr/include/zlib.h          # zlib-devel
-REQD_PKG_FILES += /usr/include/uuid/uuid.h     # libuuid-devel
+REQD_PKG_FILES := /usr/bin/git              # git
+REQD_PKG_FILES += /usr/src/kernels/${KERN_VER}*/Makefile  # kernel-devel
+REQD_PKG_FILES += /usr/bin/rpmbuild         # rpm-build
+REQD_PKG_FILES += /usr/include/zlib.h       # zlib-devel
+REQD_PKG_FILES += /usr/include/uuid/uuid.h  # libuuid-devel
 
 .PHONY: osUpdate
 osUpdate:
