@@ -4,26 +4,25 @@
 KERN_VER := $(uname -r)
 ZFS_VER := 0.6.3
 SPL_VER := ${ZFS_VER}
+# set to `-uek' if Unbreakable kernel desired, blank otherwise
+UNBREAKABLE := -uek
 
 .PHONY: all
 all: zfsPackages
 
-REQD_PKG_FILES := /usr/bin/git              # git
-REQD_PKG_FILES += /usr/src/kernels/${KERN_VER}*/Makefile  # kernel-devel
-REQD_PKG_FILES += /usr/bin/rpmbuild         # rpm-build
-REQD_PKG_FILES += /usr/include/zlib.h       # zlib-devel
-REQD_PKG_FILES += /usr/include/uuid/uuid.h  # libuuid-devel
-
-.PHONY: osUpdate
-osUpdate:
+#.PHONY: osUpdate
+#osUpdate:
+.osUpdate:
 	sudo yum update -y
+	touch $@
 
 MOUNT_DIR := /mnt/zfsRepo
 ${MOUNT_DIR}:
 	sudo mkdir ${MOUNT_DIR}
 
 MOUNT_NFS := /usr/sbin/mount.nfs
-${MOUNT_NFS}: osUpdate
+#${MOUNT_NFS}: osUpdate
+${MOUNT_NFS}: .osUpdate
 	sudo yum install -y nfs-utils
 
 MOUNT_RPM_DIR := ${MOUNT_DIR}/rpms
@@ -33,32 +32,72 @@ ${MOUNT_RPM_DIR}: ${MOUNT_DIR} ${MOUNT_NFS}
 	fi
 	sudo mount fifteenth:/JasNFSPool ${MOUNT_DIR}
 
-${REQD_PKG_FILES}:
-	sudo yum install -y git kernel-devel rpm-build zlib-devel libuuid-devel
-	#sudo yum -y install git kernel-devel zlib-devel libuuid-devel libblkid-devel libselinux-devel parted lsscsi wget autoconf automake libtool make
+.git: .osUpdate /usr/bin/git
+	sudo yum install -y git
+	touch $@
+
+.kernel${UNBREAKABLE}-devel: .osUpdate /usr/src/kernels/${KERN_VER}*/Makefile
+	sudo yum install -y kernel${UNBREAKABLE}-devel
+	touch $@
+
+.rpm-build: .osUpdate /usr/bin/rpmbuild
+	sudo yum install -y rpm-build
+	touch $@
+
+.zlib-devel: .osUpdate /usr/include/zlib.h
+	sudo yum install -y zlib-devel
+	touch $@
+
+.libuuid-devel: .osUpdate /usr/include/uuid/uuid.h
+	sudo yum install -y libuuid-devel
+	touch $@
+
+#REQD_PKG_FILES := /usr/bin/git              # git
+#REQD_PKG_FILES += /usr/src/kernels/${KERN_VER}*/Makefile  # kernel-devel
+#REQD_PKG_FILES += /usr/bin/rpmbuild         # rpm-build
+#REQD_PKG_FILES += /usr/include/zlib.h       # zlib-devel
+#REQD_PKG_FILES += /usr/include/uuid/uuid.h  # libuuid-devel
+
+REQD_PKGS := .git .kernel${UNBREAKABLE}-devel .rpm-build .zlib-devel
+REQD_PKGS += .libuuid-devel
+
+##${REQD_PKG_FILES}: osUpdate
+##${REQD_PKG_FILES}: .osUpdate
+#${REQD_PKGS}: .osUpdate
+#	sudo yum install -y git kernel${UNBREAKABLE}-devel rpm-build \
+#			    zlib-devel libuuid-devel
+#			     #libblkid-devel libselinux-devel \
+#			     #parted lsscsi wget autoconf automake \
+#			     #libtool make
 
 SPL_DIR := ./spl
+SPL_META := ${SPL_DIR}/META
 
-${SPL_DIR}: ${REQD_PKG_FILES}
+#${SPL_DIR}: ${REQD_PKG_FILES}
+${SPL_META}: ${REQD_PKGS}
 	git clone https://github.com/zfsonlinux/spl.git
 
 SPL_CONFIGURE := ${SPL_DIR}/configure
-${SPL_CONFIGURE}: ${SPL_DIR}
+${SPL_CONFIGURE}: ${SPL_META}
 	cd ${SPL_DIR} && ./autogen.sh
 
 SPL_MAKEFILE := ${SPL_DIR}/Makefile
 ${SPL_MAKEFILE}: ${SPL_CONFIGURE}
 	cd ${SPL_DIR} && ./configure
 
+SPL_VER = $(shell sed 's/Version: *//p' -n ${SPL_META})
+
 SPL_RPMs := ${SPL_DIR}/spl-${SPL_VER}-*.x86_64.rpm
 SPL_RPMs += ${SPL_DIR}/kmod-spl-${KERN_VER}*${SPL_VER}*x86_64.rpm
 SPL_RPMs += ${SPL_DIR}/kmod-spl-devel-${KERN_VER}*${SPL_VER}*x86_64.rpm
 ${SPL_RPMs}: ${SPL_MAKEFILE}
-	cd ${SPL_DIR} && make rpm-utils rpm-kmod
+	#cd ${SPL_DIR} && make rpm-utils rpm-kmod
+	${MAKE} -C ${SPL_DIR} rpm-utils rpm-kmod
 
 ZFS_DIR := ./zfs
 
-${ZFS_DIR}: ${REQD_PKG_FILES}
+#${ZFS_DIR}: ${REQD_PKG_FILES}
+${ZFS_DIR}: ${REQD_PKGS}
 	git clone https://github.com/zfsonlinux/zfs.git
 
 ZFS_CONFIGURE := ${ZFS_DIR}/configure
@@ -78,12 +117,13 @@ ZFS_RPMs += ${ZFS_DIR}/libuutil1-${ZFS_VER}*x86_64.rpm
 ZFS_RPMs += ${ZFS_DIR}/libzfs2-${ZFS_VER}*x86_64.rpm
 ZFS_RPMs += ${ZFS_DIR}/libzpool2-${ZFS_VER}*x86_64.rpm
 ${ZFS_RPMs}: ${ZFS_MAKEFILE}
-	cd ${ZFS_DIR} && make rpm-utils rpm-kmod
+	#cd ${ZFS_DIR} && make rpm-utils rpm-kmod
+	${MAKE} -C ${ZFS_DIR} rpm-utils rpm-kmod
 
 RPMs := ${SPL_RPMs} ${ZFS_RPMs}
 
 .PHONY: zfsPackages
-zfsPackages: osUpdate ${REQD_PKG_FILES} ${RPMs}
+zfsPackages: ${RPMs}
 
 .PHONY: clean
 clean:
