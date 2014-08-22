@@ -15,7 +15,7 @@ REQD_PKG_FILES += /usr/include/zlib.h          # zlib-devel
 REQD_PKG_FILES += /usr/include/uuid/uuid.h     # libuuid-devel
 
 .PHONY: zfs
-zfs: osUpdate ${REQD_PKG_FILES}
+zfs: osUpdate ${REQD_PKG_FILES} ${RPMs}
 
 .PHONY: osUpdate
 osUpdate:
